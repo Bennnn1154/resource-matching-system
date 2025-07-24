@@ -67,6 +67,6 @@ function CreateProjectPage() {
       </form>
     </div>
   );
-}
+} 
 
 export default CreateProjectPage;
