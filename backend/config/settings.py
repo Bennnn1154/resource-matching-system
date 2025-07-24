@@ -120,7 +120,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+# ... 您原有的 STATIC_URL 設定 ...
+STATIC_URL = 'static/'
+
+# --- 請將以下程式碼加入到您的設定檔中 ---
+
+# 這個設定告訴 collectstatic 指令，要將所有靜態檔案收集到哪裡。
+# os.path.join(BASE_DIR, 'staticfiles') 表示在您 backend 資料夾下建立一個名為 staticfiles 的資料夾作為儲藏室。
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# 這個設定是為了讓 Whitenoise 能更有效率地運作，是官方推薦的設定。
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
