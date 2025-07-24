@@ -4,8 +4,21 @@ from rest_framework.response import Response
 from .models import Project
 from .serializers import ProjectSerializer
 from rest_framework import viewsets
+from rest_framework import viewsets, generics # 引入 generics
+from rest_framework.permissions import AllowAny # 引入 AllowAny
+from .serializers import ProjectSerializer, UserSerializerWithToken # 引入 UserSerializerWithToken
 
 @api_view(['GET']) # 表示這個視圖只接受 GET 請求
+
+class RegisterView(generics.CreateAPIView):
+    """
+    一個只接受 POST 請求的視圖，用於建立新使用者。
+    """
+    queryset = User.objects.all()
+    # 任何人都可以註冊，所以權限設為 AllowAny
+    permission_classes = (AllowAny,)
+    serializer_class = UserSerializerWithToken
+
 def hello_world(request):
     """
     一個簡單的 API 範例，回傳一個 JSON 物件。

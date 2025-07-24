@@ -1,6 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User # 未來會用到，先 import
 
+class Profile(models.Model):
+    USER_TYPE_CHOICES = (
+        ('university', '大學端'),
+        ('school', '國高中小端'),
+    )
+    # 與 User 模型建立一對一的關聯，代表每個 User 都會有一個 Profile
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, verbose_name="使用者類別")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_user_type_display()}"
+
+
 class Project(models.Model):
     # 我們先用比較簡單的欄位，之後可以再擴充
     title = models.CharField(max_length=200, verbose_name="計畫標題")
