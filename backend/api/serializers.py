@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Profile, Project # 引入 Profile
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 # ... 您原有的 ProjectSerializer ...
 class ProjectSerializer(serializers.ModelSerializer):
@@ -42,3 +43,19 @@ class UserSerializerWithToken(serializers.ModelSerializer):
         Profile.objects.create(user=user, user_type=user_type)
 
         return user
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        # 繼承父類別的 get_token 方法，拿到原始的 token
+        token = super().get_token(user)
+
+        # 在 token 的 payload 中，加入我們想要的自訂欄位
+        token['username'] = user.username
+        # 透過 user.profile 來反向查詢到關聯的 Profile 模型，並取得 user_type
+        try:
+            token['user_type'] = user.profile.user_type
+        except user.profile.RelatedObjectDoesNotExist:
+            # 處理例外情況，例如 admin 使用者可能沒有 profile
+            token['user_type'] = None 
+
+        return token

@@ -8,6 +8,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from .models import Project, Profile
 from .serializers import ProjectSerializer, UserSerializerWithToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import MyTokenObtainPairSerializer # 引入我們新的 Serializer
 
 # 2. 將裝飾器放回 hello_world 函式的正上方
 @api_view(['GET'])
@@ -35,3 +37,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
     """
     queryset = Project.objects.all().order_by('-created_at')
     serializer_class = ProjectSerializer
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
