@@ -16,7 +16,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'subject', 'participant_limit', 
                   'restrictions', 'status', 'created_at', 'owner', 'owner_username', 
                   'application_count', 'applicants']
-        read_only_fields = []
+        read_only_fields = ['owner']
     def get_application_count(self, obj):
         # obj 就是 Project 物件本身
         # 透過 related_name='applications' 反向查詢，並計算數量
