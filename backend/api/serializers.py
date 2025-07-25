@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Project # 引入 Profile
+from .models import Profile, Project, Application
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -59,3 +59,13 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             token['user_type'] = None 
 
         return token
+
+class ApplicationSerializer(serializers.ModelSerializer):
+    # 讓 applicant 欄位在回傳時，顯示使用者名稱，而不是 ID
+    applicant_username = serializers.CharField(source='applicant.username', read_only=True)
+
+    class Meta:
+        model = Application
+        # applicant 欄位會由後端自動填入，不需要前端提供
+        fields = ['id', 'project', 'applicant', 'applicant_username', 'contact_person', 'contact_email', 'contact_phone', 'notes', 'status', 'applied_at']
+        read_only_fields = ['applicant', 'status', 'applied_at']

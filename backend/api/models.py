@@ -33,3 +33,27 @@ class Project(models.Model):
 
     def __str__(self):
         return self.title
+
+class Application(models.Model):
+    # 關聯到申請的計畫，如果計畫被刪除，相關的申請也會一併刪除
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='applications', verbose_name="申請計畫")
+    # 關聯到申請者(User)，如果使用者被刪除，申請也會一併刪除
+    applicant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications', verbose_name="申請人")
+    
+    # 申請表單的欄位
+    contact_person = models.CharField(max_length=100, verbose_name="學校聯絡人")
+    contact_email = models.EmailField(verbose_name="聯絡 Email")
+    contact_phone = models.CharField(max_length=20, verbose_name="聯絡電話")
+    notes = models.TextField(blank=True, verbose_name="備註事項")
+    
+    # 申請狀態
+    STATUS_CHOICES = (
+        ('pending', '待審核'),
+        ('approved', '已核准'),
+        ('rejected', '已拒絕'),
+    )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending', verbose_name="申請狀態")
+    applied_at = models.DateTimeField(auto_now_add=True, verbose_name="申請時間")
+
+    def __str__(self):
+        return f"{self.applicant.username} 申請 {self.project.title}"

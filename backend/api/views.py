@@ -10,6 +10,9 @@ from .models import Project, Profile
 from .serializers import ProjectSerializer, UserSerializerWithToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import MyTokenObtainPairSerializer # 引入我們新的 Serializer
+from rest_framework.permissions import IsAuthenticated # 引入 IsAuthenticated 權限
+from .models import Application # 引入 Application 模型
+from .serializers import ApplicationSerializer # 引入 ApplicationSerializer
 
 # 2. 將裝飾器放回 hello_world 函式的正上方
 @api_view(['GET'])
@@ -40,3 +43,17 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+class ApplicationViewSet(viewsets.ModelViewSet):
+    """
+    處理活動申請的 API。
+    - 建立申請 (POST): 必須是已登入的使用者。
+    - 查看申請 (GET): 未來可以設定權限，讓計畫主持人看到他收到的申請。
+    """
+    queryset = Application.objects.all()
+    serializer_class = ApplicationSerializer
+    permission_classes = [IsAuthenticated] # 設定權限：必須登入才能操作
+
+    def perform_create(self, serializer):
+        # 當建立新的申請時，自動將申請人(applicant)設定為當前登入的使用者
+        serializer.save(applicant=self.request.user)
