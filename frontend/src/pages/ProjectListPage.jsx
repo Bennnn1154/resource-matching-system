@@ -27,6 +27,7 @@ function ProjectListPage() {
                 <p><strong>主題類別：</strong> {project.subject}</p>
                 <p><strong>計畫簡介：</strong> {project.description.substring(0, 100)}...</p> {/* 只顯示部分簡介 */}
                 <p><strong>人數限制：</strong> {project.participant_limit} 人</p>
+                <p><strong>目前報名：</strong> {project.application_count} 人 {project.application_count >= project.participant_limit ? '(已額滿)' : ''}</p>
               </div>
             </Link>
           ))}
