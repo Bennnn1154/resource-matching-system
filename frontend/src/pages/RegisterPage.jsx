@@ -21,7 +21,7 @@ function RegisterPage() {
             <form onSubmit={handleSubmit}>
                 <input type="text" name="username" placeholder="請輸入帳號" required />
                 <input type="email" name="email" placeholder="請輸入 Email" required />
-                <input type="password" name="password" placeholder="請輸入密碼" required />
+                <input type="password" name="password" placeholder="請輸入密碼" required autocomplete="new-password" />
                 <select name="user_type" required>
                     <option value="">請選擇您的身分</option>
                     <option value="university">我是大學端</option>

@@ -18,7 +18,7 @@ function LoginPage() {
       <h1>登入</h1>
       <form onSubmit={handleSubmit}>
         <input type="text" name="username" placeholder="請輸入帳號" required />
-        <input type="password" name="password" placeholder="請輸入密碼" required />
+        <input type="password" name="password" placeholder="請輸入密碼" required autocomplete="new-password" />
         <button type="submit">登入</button>
       </form>
     </div>
