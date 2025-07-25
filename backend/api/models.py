@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User # 未來會用到，先 import
 
+
+
 class Profile(models.Model):
     USER_TYPE_CHOICES = (
         ('university', '大學端'),
@@ -16,6 +18,7 @@ class Profile(models.Model):
 
 class Project(models.Model):
     # 我們先用比較簡單的欄位，之後可以再擴充
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='projects', verbose_name="計畫主持人")
     title = models.CharField(max_length=200, verbose_name="計畫標題")
     description = models.TextField(verbose_name="計畫簡介")
     subject = models.CharField(max_length=50, verbose_name="主題類別", help_text="例如：科學、藝術、語文")

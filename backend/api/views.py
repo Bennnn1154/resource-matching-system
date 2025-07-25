@@ -13,6 +13,7 @@ from .serializers import MyTokenObtainPairSerializer # 引入我們新的 Serial
 from rest_framework.permissions import IsAuthenticated # 引入 IsAuthenticated 權限
 from .models import Application # 引入 Application 模型
 from .serializers import ApplicationSerializer # 引入 ApplicationSerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 # 2. 將裝飾器放回 hello_world 函式的正上方
 @api_view(['GET'])
@@ -40,6 +41,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
     """
     queryset = Project.objects.all().order_by('-created_at')
     serializer_class = ProjectSerializer
+    def perform_create(self, serializer):
+        # 當建立新的計畫時，自動將 owner 設為當前登入的使用者
+        serializer.save(owner=self.request.user)
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer

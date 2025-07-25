@@ -4,11 +4,27 @@ from .models import Profile, Project, Application
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-# ... 您原有的 ProjectSerializer ...
 class ProjectSerializer(serializers.ModelSerializer):
+    # --- 新增以下三個欄位 ---
+    owner_username = serializers.CharField(source='owner.username', read_only=True)
+    application_count = serializers.SerializerMethodField(read_only=True)
+    applicants = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Project
-        fields = '__all__'
+        # --- 將新欄位加入 fields 列表中 ---
+        fields = ['id', 'title', 'description', 'subject', 'participant_limit', 
+                  'restrictions', 'status', 'created_at', 'owner', 'owner_username', 
+                  'application_count', 'applicants']
+        read_only_fields = ['owner']
+    def get_application_count(self, obj):
+        # obj 就是 Project 物件本身
+        # 透過 related_name='applications' 反向查詢，並計算數量
+        return obj.applications.count()
+
+    def get_applicants(self, obj):
+        # 取得所有申請物件，並只回傳申請者的 user id
+        return [app.applicant.id for app in obj.applications.all()]
 
 # --- 以下是我們為使用者註冊新增的 Serializer ---
 class UserSerializerWithToken(serializers.ModelSerializer):
