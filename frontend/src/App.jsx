@@ -1,17 +1,23 @@
+// frontend/src/App.jsx
+
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import { AuthProvider } from './context/AuthContext'; // <-- 在這裡引入
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <Navbar />
-      <main>
-        {/* Outlet 會根據目前的 URL，顯示對應的頁面元件 */}
-        <Outlet />
-      </main>
-    </div>
+    // 將 AuthProvider 包裹在所有頁面內容的外層
+    // 因為 App 元件本身已經在 RouterProvider 的內部了，所以這裡的 AuthProvider 也可以取用到路由功能
+    <AuthProvider>
+      <div className="App">
+        <Navbar />
+        <main>
+          <Outlet />
+        </main>
+      </div>
+    </AuthProvider>
   );
 }
 
