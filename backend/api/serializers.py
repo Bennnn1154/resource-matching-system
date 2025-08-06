@@ -5,18 +5,19 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class ProjectSerializer(serializers.ModelSerializer):
-    # --- 新增以下三個欄位 ---
+    # --- 欄位定義維持不變 ---
     owner_username = serializers.CharField(source='owner.username', read_only=True)
     application_count = serializers.SerializerMethodField(read_only=True)
     applicants = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Project
-        # --- 將新欄位加入 fields 列表中 ---
         fields = ['id', 'title', 'description', 'subject', 'participant_limit', 
                   'restrictions', 'status', 'created_at', 'owner', 'owner_username', 
                   'application_count', 'applicants']
         read_only_fields = ['owner']
+    
+    # --- ✅ 修正點：將以下兩個方法往右縮排，讓它們成為 ProjectSerializer 的一部分 ---
     def get_application_count(self, obj):
         # obj 就是 Project 物件本身
         # 透過 related_name='applications' 反向查詢，並計算數量

@@ -1,21 +1,21 @@
 # backend/api/views.py
 
-# 1. 清理並整理所有的 import
+# 1. 清理並合併所有 import 語句，讓程式碼更乾淨
 from django.contrib.auth.models import User
 from rest_framework import generics, viewsets
 from rest_framework.decorators import api_view
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from .models import Project, Profile
-from .serializers import ProjectSerializer, UserSerializerWithToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import MyTokenObtainPairSerializer # 引入我們新的 Serializer
-from rest_framework.permissions import IsAuthenticated # 引入 IsAuthenticated 權限
-from .models import Application # 引入 Application 模型
-from .serializers import ApplicationSerializer # 引入 ApplicationSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-# 2. 將裝飾器放回 hello_world 函式的正上方
+from .models import Application, Project, Profile
+from .serializers import (
+    ApplicationSerializer, MyTokenObtainPairSerializer, ProjectSerializer,
+    UserSerializerWithToken
+)
+
+# --------------------------------------------------------------------------
+
 @api_view(['GET'])
 def hello_world(request):
     """
@@ -23,41 +23,48 @@ def hello_world(request):
     """
     return Response({"message": "Hello from Django Backend!"})
 
-# 3. 保持每個 Class 和 Function 的獨立與完整
+
 class RegisterView(generics.CreateAPIView):
     """
     一個只接受 POST 請求的視圖，用於建立新使用者。
     """
     queryset = User.objects.all()
-    # 任何人都可以註冊，所以權限設為 AllowAny
     permission_classes = (AllowAny,)
     serializer_class = UserSerializerWithToken
 
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    """
+    使用我們客製化的 Serializer 來核發 Token。
+    """
+    serializer_class = MyTokenObtainPairSerializer
+
+
 class ProjectViewSet(viewsets.ModelViewSet):
     """
-    一個可以處理所有關於「計畫」的 API 視圖集。
-    它會自動提供 list(列表), create(建立), retrieve(單一查詢),
-    update(更新), destroy(刪除) 等操作。
+    處理所有關於「計畫」的 API。
     """
     queryset = Project.objects.all().order_by('-created_at')
     serializer_class = ProjectSerializer
+    
+    # --- ✅ 核心修正點：新增這一行權限設定 ---
+    # IsAuthenticatedOrReadOnly 的意思是：
+    # - 對於安全的讀取操作 (GET)，任何人都可以訪問。
+    # - 對於不安全的寫入操作 (POST, PUT, DELETE)，必須是已登入的使用者才能訪問。
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
     def perform_create(self, serializer):
-        # 當建立新的計畫時，自動將 owner 設為當前登入的使用者
+        # 因為上面的權限設定，能執行到這裡的 self.request.user 一定是已登入的使用者
         serializer.save(owner=self.request.user)
 
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
 
 class ApplicationViewSet(viewsets.ModelViewSet):
     """
     處理活動申請的 API。
-    - 建立申請 (POST): 必須是已登入的使用者。
-    - 查看申請 (GET): 未來可以設定權限，讓計畫主持人看到他收到的申請。
     """
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
-    permission_classes = [IsAuthenticated] # 設定權限：必須登入才能操作
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        # 當建立新的申請時，自動將申請人(applicant)設定為當前登入的使用者
         serializer.save(applicant=self.request.user)
