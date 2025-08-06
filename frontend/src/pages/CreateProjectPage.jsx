@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+// frontend/src/pages/CreateProjectPage.jsx
+
+import React, { useState, useContext } from 'react'; // 1. 引入 useContext
 import { useNavigate } from 'react-router-dom';
+import AuthContext from '../context/AuthContext'; // 2. 引入 AuthContext
 
 function CreateProjectPage() {
   const [formData, setFormData] = useState({
@@ -9,7 +12,11 @@ function CreateProjectPage() {
     participant_limit: 30,
     restrictions: '',
   });
+
   const navigate = useNavigate();
+  // 3. 從廣播系統中，取得通行證 (authTokens)
+  const { authTokens } = useContext(AuthContext);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,38 +27,35 @@ function CreateProjectPage() {
   };
 
   const handleSubmit = (e) => {
-      e.preventDefault();
-
-      fetch(`${import.meta.env.VITE_API_URL}/api/projects/`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
-      })
-      .then(response => {
-          // 如果回應的狀態碼是成功的 (例如 201 Created)
-          if (response.ok) {
-              // 我們才把它當作 JSON 來解析
-              return response.json();
-          }
-          // 如果回應是失敗的 (例如 400 Bad Request)
-          // 我們把它當作純文字來讀取，這樣才能看到 HTML 錯誤頁面的內容
-          return response.text().then(text => {
-              // 拋出一個包含伺服器回應內容的錯誤
-              throw new Error(`伺服器錯誤 (狀態碼: ${response.status}): \n${text}`);
-          });
-      })
-      .then(data => {
-          // 這個 .then 只會在 response.ok 為 true 時執行
-          alert('計畫已成功上傳！');
-          navigate('/');
-      })
-      .catch(error => {
-          // 這裡可以捕捉到上面拋出的錯誤
-          console.error("建立專案時發生錯誤:", error);
-          alert('上傳失敗！請按 F12 打開開發者工具，查看 Console 中的詳細錯誤訊息。');
-      });
+    e.preventDefault();
+    // 4. 在 fetch 請求中加入 Authorization 標頭
+    fetch(`${API_URL}/api/projects/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // ✅ 核心修正點：附上會員通行證
+        // 'Bearer ' 後面有一個空格，這很重要
+        'Authorization': `Bearer ${authTokens.access}`
+      },
+      body: JSON.stringify(formData),
+    })
+    .then(response => {
+        // ... (這裡的錯誤處理邏輯維持不變)
+        if (response.ok) {
+            return response.json();
+        }
+        return response.text().then(text => {
+            throw new Error(`伺服器錯誤 (狀態碼: ${response.status}): \n${text}`);
+        });
+    })
+    .then(data => {
+        alert('計畫已成功上傳！');
+        navigate('/');
+    })
+    .catch(error => {
+        console.error("建立專案時發生錯誤:", error);
+        alert('上傳失敗！請按 F12 打開開發者工具，查看 Console 中的詳細錯誤訊息。');
+    });
   };
 
   return (
@@ -67,6 +71,6 @@ function CreateProjectPage() {
       </form>
     </div>
   );
-} 
+}
 
 export default CreateProjectPage;
