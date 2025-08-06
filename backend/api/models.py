@@ -1,7 +1,6 @@
+#把東西丟進DataBase
 from django.db import models
 from django.contrib.auth.models import User # 未來會用到，先 import
-
-
 
 class Profile(models.Model):
     USER_TYPE_CHOICES = (

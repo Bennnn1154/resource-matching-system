@@ -1,5 +1,3 @@
-# backend/config/settings.py
-
 import os
 from pathlib import Path
 
@@ -16,7 +14,7 @@ DEBUG = os.environ.get('DJANGO_ENV') != 'production'
 
 # --- 關鍵修正 3: 設定 ALLOWED_HOSTS ---
 # 這是解決 DisallowedHost 錯誤的核心
-ALLOWED_HOSTS = [
+ALLOWED_HOSTS = [ #只有從以下網址visit的人可以瀏覽網頁，否則拒絕他的request
     'resource-matching-system-1.onrender.com',  # 您的後端網址
     'localhost',
     '127.0.0.1',
@@ -42,11 +40,11 @@ INSTALLED_APPS = [
     'api',
 ]
 
+
 # --- 關鍵修正 4: 修正 MIDDLEWARE ---
 # 加入 whitenoise 並移除重複的項目
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # Whitenoise Middleware 應該放在 SecurityMiddleware 之後
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
