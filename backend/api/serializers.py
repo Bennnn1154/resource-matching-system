@@ -34,6 +34,7 @@ class UserSerializerWithToken(serializers.ModelSerializer):
     user_type = serializers.CharField(write_only=True)
     # 讓 token 成為一個唯讀欄位，用來在註冊成功後回傳 token
     token = serializers.SerializerMethodField(read_only=True)
+    
 
     class Meta:
         model = User
