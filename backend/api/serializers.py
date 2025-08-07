@@ -17,15 +17,16 @@ class ProjectSerializer(serializers.ModelSerializer):
                   'application_count', 'applicants']
         read_only_fields = ['owner']
     
-    # --- ✅ 修正點：將以下兩個方法往右縮排，讓它們成為 ProjectSerializer 的一部分 ---
     def get_application_count(self, obj):
-        # obj 就是 Project 物件本身
-        # 透過 related_name='applications' 反向查詢，並計算數量
         return obj.applications.count()
 
+    # --- 👇👇👇 關鍵修改點在這裡 👇👇👇 ---
     def get_applicants(self, obj):
-        # 取得所有申請物件，並只回傳申請者的 user id
-        return [app.applicant.id for app in obj.applications.all()]
+        # 取得所有關聯的 Application 物件
+        applications = obj.applications.all()
+        # 使用 ApplicationSerializer 來序列化這些物件
+        # many=True 表示我們正在序列化一個物件列表
+        return ApplicationSerializer(applications, many=True).data
 
 # --- 以下是我們為使用者註冊新增的 Serializer ---
 class UserSerializerWithToken(serializers.ModelSerializer):
